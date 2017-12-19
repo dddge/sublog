@@ -1,15 +1,15 @@
 <template>
   <div>
     <ul>
-      <li v-for="issue in issues">
+      <li v-for="issue in issues" :key="issue.id">
         <h3 class="created-at">{{ issue.created_at | moment("MMM DD, YYYY") }}</h3>
         <h2>
-              <router-link :to="`/post/${issue.number}`">{{ issue.title }}</router-link>
-            </h2>
+          <router-link :to="`/post/${issue.number}`">{{ issue.title }}</router-link>
+        </h2>
       </li>
     </ul>
     <p v-if="isEmpty" class="text-center">Empty</p>
-    <pager :onChange="cb" :prevVisible="prevVisible" :nextVisible="nextVisible"></pager>
+    <pager @change="cb" :prevVisible="prevVisible" :nextVisible="nextVisible"></pager>
   </div>
 </template>
 
@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     fetchIssues(page) {
-      ajax(getIndexApi(page), res => {
+      ajax(getIndexApi(page)).then(res => {
         if (res.data.length === 0) {
           this.isEmpty = true
           this.nextVisible = false
@@ -43,6 +43,8 @@ export default {
         this.isEmpty = false
         this.nextVisible = true
         this.issues = res.data
+      }).catch(err => {
+        alert(err.response.data.message)
       })
     },
     cb(page) {
